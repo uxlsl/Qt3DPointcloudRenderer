@@ -1,4 +1,5 @@
 import QtQuick 2.4
+import QtQuick.Dialogs 1.2
 import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.1
 import QtGraphicalEffects 1.0
@@ -10,6 +11,7 @@ import Qt3D.Extras 2.0
 
 import pcl 1.0
 
+
 ApplicationWindow {
     id: window
     title: qsTr("Map Visualization")
@@ -17,17 +19,27 @@ ApplicationWindow {
     height: 800
     visible: true
 
-    PointcloudReader {
-        id: readerBunny
-        filename: "data/bunny.pcd"
-    }
-    PointcloudReader {
-        id: readerBunnyNormal
-        filename: "data/bunny_normal.pcd"
-    }
-
     GridLayout {
         anchors.fill: parent
+
+    Button {
+            text: "Open 3D Model"
+            onClicked:
+            {
+                fileDialog.open()
+            }
+        }
+    FileDialog {
+        id: fileDialog
+        onAccepted:
+        {
+            var fileUrl = fileDialog.fileUrl.toString();
+            foobar.pointCloudFilePath = fileUrl.substring(7, fileUrl.length);
+            foobar.pointCloudGeometry.updateVertices()
+        }
+    }
+
+
         Scene3D {
             id: scene3d
             Layout.minimumWidth: 50
@@ -46,7 +58,7 @@ ApplicationWindow {
                     aspectRatio: scene3d.width/scene3d.height
                     nearPlane : 0.1
                     farPlane : 1000.0
-                    position: Qt.vector3d( 0.0, 0.0, -20.0 )
+                    position: Qt.vector3d( 0.0, 0.0, -1.0 )
                     upVector: Qt.vector3d( 0.0, 1.0, 0.0 )
                     viewCenter: Qt.vector3d( 0.0, 0.0, 0.0 )
                 }
@@ -87,7 +99,7 @@ ApplicationWindow {
                                             }
                                         }
                                         LayerFilter {
-                                            layers: surfelLayer
+                                            // layers: surfelLayer
                                             RenderStateSet {
                                                 renderStates: [
                                                     PointSize { sizeMode: PointSize.Programmable }, //supported since OpenGL 3.2
@@ -132,83 +144,15 @@ ApplicationWindow {
                 Layer {
                     id: pointLayer
                 }
-                Q3D.Entity {
-                    id: torusEntity
-                    components: [ solidLayer, torusMesh, phongMaterial, torusTransform ]
-                }
 
-                Q3D.Entity {
-                    id: pointcloud
-                    property var meshTransform: Q3D.Transform {
-                            id: pointcloudTransform
-                            property real userAngle: rotator.rotationAnimation
-                            scale: 20
-                            translation: Qt.vector3d(0, -2, 0)
-                            rotation: fromAxisAndAngle(Qt.vector3d(0, 1, 0), userAngle)
-                        }
-                    property GeometryRenderer pointcloudMesh: GeometryRenderer {
-                            geometry: PointcloudGeometry { pointcloud: readerBunny.pointcloud }
-                            primitiveType: GeometryRenderer.Points
-                        }
-                    property Material materialPoint: Material {
-                        effect: Effect {
-                            techniques: Technique {
-                                renderPasses: RenderPass {
-                                    shaderProgram: ShaderProgram {
-                                        vertexShaderCode: loadSource("qrc:/shader/pointcloud.vert")
-                                        fragmentShaderCode: loadSource("qrc:/shader/pointcloud.frag")
-                                    }
-                                }
-                            }
-                        }
-                        parameters: Parameter { name: "pointSize"; value: 0.7 }
-                    }
-                    //property Material materialPoint: PerVertexColorMaterial {}
-                    components: [ pointcloudMesh, materialPoint, meshTransform, pointLayer ]
-                }
-
-                Q3D.Entity {
-                    id: pointcloudSurfel
-                    property Layer layerPoints: Layer {
-                            id: surfelLayer
-                        }
-                    property var meshTransform: Q3D.Transform {
-                            id: pointcloudSurfelTransform
-                            property real userAngle: rotator.rotationAnimation
-                            scale: 20
-                            translation: Qt.vector3d(0, 2, 0)
-                            rotation: fromAxisAndAngle(Qt.vector3d(0, 1, 0), userAngle)
-                        }
-                    property GeometryRenderer surfelMesh: GeometryRenderer {
-                            geometry: PointcloudGeometry { pointcloud: readerBunnyNormal.pointcloud }
-                            primitiveType: GeometryRenderer.Points
-                        }
-                    property Material materialSurfel: Material {
-                        effect: Effect {
-                            techniques: Technique {
-                                renderPasses: RenderPass {
-                                    shaderProgram: ShaderProgram {
-                                        vertexShaderCode: loadSource("qrc:/shader/surfel.vert")
-                                        fragmentShaderCode: loadSource("qrc:/shader/surfel.frag")
-                                    }
-                                }
-                            }
-                        }
-                        parameters: [
-                            Parameter { name: "pointSize"; value: 0.06 },
-                            Parameter { name: "fieldOfView"; value: mainCamera.fieldOfView },
-                            Parameter { name: "fieldOfViewVertical"; value: mainCamera.fieldOfView/mainCamera.aspectRatio },
-                            Parameter { name: "nearPlane"; value: mainCamera.nearPlane },
-                            Parameter { name: "farPlane"; value: mainCamera.farPlane },
-                            Parameter { name: "width"; value: scene3d.width },
-                            Parameter { name: "height"; value: scene3d.height }
-                        ]
-                    }
-                    components: [ surfelMesh, materialSurfel, meshTransform, surfelLayer ]
+                REPointCloudEntity{
+                    id: foobar
+                    pointCloudFilePath:  ""//"/home/lin/src/Qt3DPointcloudRenderer/build/example/data/bunny.ply"
                 }
             }
-        }
     }
+    }
+    /*
     NumberAnimation {
         id: rotator
         property real rotationAnimation
@@ -221,7 +165,7 @@ ApplicationWindow {
         loops: Animation.Infinite
         running: true
     }
-
+*/
     SystemPalette {
         id: palette
     }

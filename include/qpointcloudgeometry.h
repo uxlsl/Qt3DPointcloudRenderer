@@ -14,13 +14,13 @@ class QPointcloudGeometry : public Qt3DRender::QGeometry
 public:
     explicit QPointcloudGeometry(QNode *parent = NULL);
     ~QPointcloudGeometry();
-    void updateVertices();
 
     QPointcloud *pointcloud() const;
 
 
 public Q_SLOTS:
     void setPointcloud(QPointcloud *pointcloud);
+    void updateVertices();
 private Q_SLOTS:
     void updateAttributes();
 Q_SIGNALS:

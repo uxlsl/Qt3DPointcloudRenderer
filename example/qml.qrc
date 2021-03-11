@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/main.qml</file>
+        <file>qml/REPointCloudEntity.qml</file>
+        <file>qml/REInputEntity.qml</file>
         <file>shader/pointcloud.frag</file>
         <file>shader/pointcloud.vert</file>
         <file>shader/surfel.frag</file>

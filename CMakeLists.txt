@@ -16,6 +16,10 @@ find_package(Qt53DQuickRender REQUIRED)
 set(WITH_PCL ON  CACHE BOOL "Enable pcl")
 set(WITH_LAS OFF CACHE BOOL "Enable las")
 
+
+
+message(${WITH_PCL})
+
 if(WITH_PCL)
     find_package(PCL REQUIRED COMPONENTS common io)
     link_directories(${PCL_LIBRARY_DIRS})
